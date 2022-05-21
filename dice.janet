@@ -67,7 +67,6 @@
                   (do (put ret :again item)
                       (if (< item (ret :success)) (put ret :success item))))
       (error "Could not parse!")))
-  (pp (table/to-struct ret))
   (table/to-struct ret))
 
 (defn should_reroll_general? [number modifiers] (>= number (modifiers :again)))
@@ -156,7 +155,7 @@
                     (print "Sum: " (sum result)))
                 (let [number (scan-number dice)]
                   (if number
-                    (cod_roll number (args 0))
+                    (cod_roll number ;args)
                     (case dice
                       "chance" (roll_chance ;args)
                       "init" (roll_init ;args)
