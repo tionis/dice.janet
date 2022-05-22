@@ -132,6 +132,7 @@
 
 (defn roll_chance [& modifiers]
   (def result (roll-one-y-sided-die 10))
+  (print "[" result "]")
   (cond
     (= result 1)  (print "Crit Fail!")
     (= result 10) (print "Success!")
