@@ -1,6 +1,7 @@
 #!/bin/env janet
 #(math/seedrandom (os/cryptorand 8))
 (var rng nil)
+(defmacro s+ "Appends string to var x" [x & strings] ~(set ,x (string ,x ,;strings)))
 
 (defn roll-one-y-sided-die [y]
   (if (not rng) (set rng (math/rng (os/cryptorand 8))))
@@ -74,16 +75,17 @@
 (defn is_success? [number modifiers] (>= number (modifiers :success)))
 
 (defn format_result [result]
+  (var ret "")
   (def max_i (- (length result) 1))
   (loop [i :range [0 (length result)]]
-    (prin "[")
+    (s+ ret "[")
     (def max_j (- (length (result i))))
     (loop [j :range [0 (length (result i))]]
       (if (> j 0)
-          (prin (string " -> " ((result i) j)))
-          (prin ((result i) j))))
-    (if (= i max_i) (prin "]") (prin "] ")))
-  (print))
+          (s+ ret (string " -> " ((result i) j)))
+          (s+ ret ((result i) j))))
+    (if (= i max_i) (s+ ret "]") (s+ ret "] ")))
+  ret)
 
 (defn count_successes [result modifiers]
   (var successes 0)
@@ -99,17 +101,19 @@
   fails)
 
 (defn get_result_message [amount modifiers result]
+  (var ret "")
   (def successes (count_successes result modifiers))
   (def fails (count_fails result modifiers))
   (if (> fails (math/floor (/ amount 2)))
       (if (= successes 0)
-          (print "Crit Fail")
-          (print "Fail with " successes " successes"))
+          (s+ ret "Crit Fail")
+          (s+ ret "Fail with " successes " successes"))
       (if (>= successes 5)
-          (print "Crit Success with " successes " successes")
+          (s+ ret "Crit Success with " successes " successes")
           (if (= successes 0)
-            (print "Fail with 0 successes")
-            (print "Success with " successes " successes")))))
+            (s+ ret "Fail with 0 successes")
+            (s+ ret "Success with " successes " successes"))))
+  ret)
 
 (defn cod_roll [amount & modifiers]
   (if (= amount nil) (error "Not a number!"))
@@ -127,8 +131,8 @@
                                                 (> recursion 1))))
           (set continue false))
       (array/push (get result i) die_result)))
-  (format_result result)
-  (get_result_message amount modifiers result))
+  (print (format_result result))
+  (print (get_result_message amount modifiers result)))
 
 (defn roll_chance [& modifiers]
   (def result (roll-one-y-sided-die 10))
