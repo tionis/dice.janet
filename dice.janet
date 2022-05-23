@@ -117,6 +117,20 @@
             (s+ ret "Success with " successes " successes"))))
   ret)
 
+(defn get_status [amount modifiers result]
+  (def successes (count_successes result modifiers))
+  (def fails (count_fails result modifiers))
+  (if (> fails (math/floor (/ amount 2)))
+      (if (= successes 0)
+          :crit_fail
+          :fail)
+      (if (>= successes 5)
+          :crit_success
+          (if (= successes 0)
+              :fail
+              :success))))
+
+
 (defn cod_roll [amount & modifiers]
   (if (= amount nil) (error "Not a number!"))
   (def modifiers (parse-modifiers modifiers))
@@ -134,7 +148,10 @@
           (set continue false))
       (array/push (get result i) die_result)))
   (print (format_result result))
-  (print (get_result_message amount modifiers result)))
+  (print (get_result_message amount modifiers result))
+  {:result result
+   :status (get_status amount modifiers result)
+   :successes (count_successes result modifiers)})
 
 (defn roll_chance [& modifiers]
   (def result (roll-one-y-sided-die 10))
