@@ -136,9 +136,14 @@
   (each char init_table
     (put init_mods (char 0) (char 1))
     (def die_result (roll_one_y_sided_die 10))
-    (def init_result (+ die_result (char 1)))
+    (var init_result (+ die_result (char 1)))
     (each modifier (slice char 2 -1)
-      (error "not implemented yet"))
+      (case modifier
+        :advantage (do (def die_result_2 (roll_one_y_sided_die 10))
+                       (def init_result_2 (+ die_result_2 (char 1)))
+                       (if (> init_result_2 init_result)
+                           (set init_result init_result_2)))
+        (error (string "modifier not implemented: " modifier))))
     (array/push result @[(char 0) init_result]))
   (sort result (fn [x y] (if (= (x 1) (y 1))
                                (> (init_mods (x 0)) (init_mods (y 0)))
