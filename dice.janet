@@ -3,18 +3,18 @@
 (var rng nil)
 (defmacro s+ "Appends string to var x" [x & strings] ~(set ,x (string ,x ,;strings)))
 
-(defn roll-one-y-sided-die [y]
+(defn roll_one_y_sided_die [y]
   (if (not rng) (set rng (math/rng (os/cryptorand 8))))
   (+ 1 (math/rng-int rng y)))
 
-(defn roll-x-y-sided-dice [x y] 
+(defn roll_x_y_sided_dice [x y] 
   (if (= x 0)
       @[]
-      (array/concat @[(roll-one-y-sided-die y)] (roll-x-y-sided-dice (- x 1) y))))
+      (array/concat @[(roll_one_y_sided_die y)] (roll_x_y_sided_dice (- x 1) y))))
 
-(defn roll-x-y-sided-dice-legacy [x y] 
+(defn roll_x_y_sided_dice-legacy [x y] 
   (var ret @[])
-  (loop [i :range [0 x]] (array/push ret (roll-one-y-sided-die y))) ret)
+  (loop [i :range [0 x]] (array/push ret (roll_one_y_sided_die y))) ret)
 
 (defn arr-contains? [arr x]
   (label result
@@ -130,6 +130,19 @@
               :fail
               :success))))
 
+(defn mass_init [init_table]
+  (def result @[])
+  (def init_mods @{})
+  (each char init_table
+    (put init_mods (char 0) (char 1))
+    (def die_result (roll_one_y_sided_die 10))
+    (def init_result (+ die_result (char 1)))
+    (each modifier (slice char 2 -1)
+      (error "not implemented yet"))
+    (array/push result @[(char 0) init_result]))
+  (sort result (fn [x y] (if (= (x 1) (y 1))
+                               (> (init_mods (x 0)) (init_mods (y 0)))
+                               (> (x 1) (y 1))))))
 
 (defn cod_roll [amount & modifiers]
   (if (= amount nil) (error "Not a number!"))
@@ -141,7 +154,7 @@
     (var recursion 0)
     (while continue
       (++ recursion)
-      (def die_result (roll-one-y-sided-die 10))
+      (def die_result (roll_one_y_sided_die 10))
       (if (and (< die_result (modifiers :again))
                (or (not (modifiers :rote)) (and (modifiers :rote)
                                                 (> recursion 1))))
@@ -154,7 +167,7 @@
    :successes (count_successes result modifiers)})
 
 (defn roll_chance [& modifiers]
-  (def result (roll-one-y-sided-die 10))
+  (def result (roll_one_y_sided_die 10))
   (print "[" result "]")
   (cond
     (= result 1)  (print "Crit Fail!")
@@ -162,7 +175,7 @@
     (print "Fail!")))
 
 (defn roll_init [& args]
-  (def result (roll-one-y-sided-die 10))
+  (def result (roll_one_y_sided_die 10))
   (if (= (length args) 0)
       (print "Your result: [" result "]")
       (do (def number (scan-number (args 0)))
@@ -174,7 +187,7 @@
   (case (type dice)
     :string (if (peg/match ~(* (some :d) "d" (some :d)) dice)
                 (do (def dice_arr (string/split "d" dice))
-                    (def result (roll-x-y-sided-dice (scan-number (dice_arr 0)) (scan-number (dice_arr 1))))
+                    (def result (roll_x_y_sided_dice (scan-number (dice_arr 0)) (scan-number (dice_arr 1))))
                     (prin "Result: ") (pp result)
                     (print "Sum: " (sum result)))
                 (let [number (scan-number dice)]
