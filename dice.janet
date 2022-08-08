@@ -16,21 +16,21 @@
   (var ret @[])
   (loop [i :range [0 x]] (array/push ret (roll_one_y_sided_die y))) ret)
 
-(defn arr-contains? [arr x]
+(defn- arr-contains? [arr x]
   (label result
     (each item arr
       (if (= item x)
           (return result true)))
     (return result false)))
 
-(defn arr-contains-number [arr]
+(defn- arr-contains-number [arr]
   (label result
     (each item arr
       (if (number? item)
         (return result true)))
     (return result false)))
 
-(defn get-smallest-number [arr]
+(defn- get-smallest-number [arr]
   (var smallest 0)
   (each item arr (if (number? item) (set smallest item)))
   (each item arr
@@ -39,10 +39,10 @@
             (set smallest item))))
   smallest)
 
-(defn get_success_number [sides] (- sides (math/ceil (/ sides 3.5)))) # TODO integrate with parse-modifiers
-(defn get_fail_number [sides] (math/floor (/ sides 6))) # TODO integrate with parse-modifiers
+(defn- get_success_number [sides] (- sides (math/ceil (/ sides 3.5)))) # TODO integrate with parse-modifiers
+(defn- get_fail_number [sides] (math/floor (/ sides 6))) # TODO integrate with parse-modifiers
 
-(defn parse-modifiers [modifiers]
+(defn- parse-modifiers [modifiers]
   (var ret @{})
   (put ret :again 10)
   (put ret :success 8)
@@ -72,11 +72,11 @@
       (error "Again modifier to low!"))
   (table/to-struct ret))
 
-(defn should_reroll_general? [number modifiers] (>= number (modifiers :again)))
-(defn should_reroll_first_roll? [number modifiers] (if (should_reroll_general? number modifiers) true (modifiers :rote)))
-(defn is_success? [number modifiers] (>= number (modifiers :success)))
+(defn- should_reroll_general? [number modifiers] (>= number (modifiers :again)))
+(defn- should_reroll_first_roll? [number modifiers] (if (should_reroll_general? number modifiers) true (modifiers :rote)))
+(defn- is_success? [number modifiers] (>= number (modifiers :success)))
 
-(defn format_result [result]
+(defn- format_result [result]
   (var ret "")
   (def max_i (- (length result) 1))
   (loop [i :range [0 (length result)]]
@@ -89,20 +89,20 @@
     (if (= i max_i) (s+ ret "]") (s+ ret "] ")))
   ret)
 
-(defn count_successes [result modifiers]
+(defn- count_successes [result modifiers]
   (var successes 0)
   (each line result
     (each item line
       (if (>= item (modifiers :success)) (++ successes))))
   successes)
 
-(defn count_fails [result modifiers]
+(defn- count_fails [result modifiers]
   (var fails 0)
   (each line result
     (if (<= (line 0) (modifiers :fail)) (++ fails)))
   fails)
 
-(defn get_result_message [amount modifiers result]
+(defn- get_result_message [amount modifiers result]
   (var ret "")
   (def successes (count_successes result modifiers))
   (def fails (count_fails result modifiers))
@@ -117,7 +117,7 @@
             (s+ ret "Success with " successes " successes"))))
   ret)
 
-(defn get_status [amount modifiers result]
+(defn- get_status [amount modifiers result]
   (def successes (count_successes result modifiers))
   (def fails (count_fails result modifiers))
   (if (> fails (math/floor (/ amount 2)))
@@ -149,7 +149,7 @@
                                (> (init_mods (x 0)) (init_mods (y 0)))
                                (> (x 1) (y 1))))))
 
-(defn cod_roll [amount & modifiers]
+(defn- cod_roll [amount & modifiers]
   (if (= amount nil) (error "Not a number!"))
   (def modifiers (parse-modifiers modifiers))
   (def result @[])
@@ -171,7 +171,7 @@
    :status (get_status amount modifiers result)
    :successes (count_successes result modifiers)})
 
-(defn roll_chance [& modifiers]
+(defn- roll_chance [& modifiers]
   (def result (roll_one_y_sided_die 10))
   (print "[" result "]")
   (cond
@@ -179,7 +179,7 @@
     (= result 10) (print "Success!")
     (print "Fail!")))
 
-(defn roll_init [& args]
+(defn- roll_init [& args]
   (def result (roll_one_y_sided_die 10))
   (if (= (length args) 0)
       (print "Your result: [" result "]")
