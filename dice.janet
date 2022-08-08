@@ -207,6 +207,13 @@
                :chance (roll_chance ;args)
                :init (roll_init ;args))))
 
+(defn multi [amount init &opt name]
+  (default name "npc")
+  (def ret @[])
+  (loop [i :range [1 (+ amount 1)]]
+    (array/push ret [(string name "-" i) init]))
+  ret)
+
 (defn main [_ & args]
   (def args_count (length args))
   (cond
