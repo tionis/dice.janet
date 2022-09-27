@@ -149,7 +149,7 @@
                                (> (init_mods (x 0)) (init_mods (y 0)))
                                (> (x 1) (y 1))))))
 
-(defn cod_roll [amount sides & modifiers]
+(defn cod_roll [sides amount & modifiers]
   (if (= amount nil) (error "Not a number!"))
   (def modifiers (parse-modifiers sides modifiers))
   (def result @[])
@@ -197,7 +197,7 @@
                     (print "Sum: " (sum result)))
                 (let [number (scan-number dice)]
                   (if number
-                    (cod_roll number ;args)
+                    (cod_roll 10 number ;args)
                     (case dice
                       "chance" (roll_chance ;args)
                       "init" (roll_init ;args)
