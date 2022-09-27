@@ -39,14 +39,14 @@
             (set smallest item))))
   smallest)
 
-(defn- get_success_number [sides] (- sides (math/ceil (/ sides 3.5)))) # TODO integrate with parse-modifiers
-(defn- get_fail_number [sides] (math/floor (/ sides 6))) # TODO integrate with parse-modifiers
+(defn- get_success_number [sides] (- sides (math/ceil (/ sides 3.5))))
+(defn- get_fail_number [sides] (math/floor (/ sides 6)))
 
-(defn- parse-modifiers [modifiers]
+(defn- parse-modifiers [sides modifiers]
   (var ret @{})
-  (put ret :again 10)
-  (put ret :success 8)
-  (put ret :fail 1)
+  (put ret :again sides)
+  (put ret :success (get_success_number sides))
+  (put ret :fail (get_fail_number sides))
   (put ret :rote false)
   (each item modifiers
     (case (type item)
@@ -78,8 +78,8 @@
 
 (defn- format_result [result]
   (var ret "")
-  (def max_i (- (length result) 1))
   (loop [i :range [0 (length result)]]
+  (def max_i (- (length result) 1))
     (s+ ret "[")
     (def max_j (- (length (result i))))
     (loop [j :range [0 (length (result i))]]
@@ -149,9 +149,9 @@
                                (> (init_mods (x 0)) (init_mods (y 0)))
                                (> (x 1) (y 1))))))
 
-(defn- cod_roll [amount & modifiers]
+(defn cod_roll [amount sides & modifiers]
   (if (= amount nil) (error "Not a number!"))
-  (def modifiers (parse-modifiers modifiers))
+  (def modifiers (parse-modifiers sides modifiers))
   (def result @[])
   (loop [i :range [0 amount]]
     (array/push result @[])
@@ -159,7 +159,7 @@
     (var recursion 0)
     (while continue
       (++ recursion)
-      (def die_result (roll_one_y_sided_die 10))
+      (def die_result (roll_one_y_sided_die sides))
       (if (and (< die_result (modifiers :again))
                (or (not (modifiers :rote)) (and (modifiers :rote)
                                                 (> recursion 1))))
@@ -202,7 +202,7 @@
                       "chance" (roll_chance ;args)
                       "init" (roll_init ;args)
                       (error "Unknown command!")))))
-    :number (cod_roll dice ;args) # TODO fix this (new handling of modifiers?)
+    :number (cod_roll 10 dice ;args)
     :keyword (case dice
                :chance (roll_chance ;args)
                :init (roll_init ;args))))
