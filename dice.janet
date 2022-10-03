@@ -42,7 +42,7 @@
 (defn- get_success_number [sides] (- sides (math/ceil (/ sides 3.5))))
 (defn- get_fail_number [sides] (math/floor (/ sides 6)))
 
-(defn- parse-modifiers [sides modifiers]
+(defn parse-modifiers [sides modifiers]
   (var ret @{})
   (put ret :again sides)
   (put ret :success (get_success_number sides))
@@ -149,9 +149,7 @@
                                (> (init_mods (x 0)) (init_mods (y 0)))
                                (> (x 1) (y 1))))))
 
-(defn cod_roll [sides amount & modifiers]
-  (if (= amount nil) (error "Not a number!"))
-  (def modifiers (parse-modifiers sides modifiers))
+(defn cod_roll_raw [sides amount modifiers]
   (def result @[])
   (loop [i :range [0 amount]]
     (array/push result @[])
@@ -165,11 +163,17 @@
                                                 (> recursion 1))))
           (set continue false))
       (array/push (get result i) die_result)))
+  result)
+
+(defn cod_roll [sides amount & raw-modifiers]
+  (if (= amount nil) (error "Not a number!"))
+  (def parsed-modifiers(parse-modifiers sides raw-modifiers))
+  (def result (cod_roll_raw sides amount parsed-modifiers))
   (print (format_result result))
-  (print (get_result_message amount modifiers result))
+  (print (get_result_message amount parsed-modifiers result))
   {:result result
-   :status (get_status amount modifiers result)
-   :successes (count_successes result modifiers)})
+   :status (get_status amount parsed-modifiers result)
+   :successes (count_successes result parsed-modifiers)})
 
 (defn- roll_chance [& modifiers]
   (def result (roll_one_y_sided_die 10))
