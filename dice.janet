@@ -30,13 +30,13 @@
                               (if (< number (ret :success)) (put ret :success number))))
                       (case item
                         "r" (put ret :rote true)
-                        "n" (do (put ret :again 11)
+                        "n" (do (put ret :again (+ sides 1))
                                 (put ret :rote false)))))
       :keyword (case item
                   :rote (put ret :rote true)
-                  :no-reroll (put ret :again 11)
+                  :no-reroll (put ret :again (+ sides 1))
                   :r (put ret :rote true)
-                  :n (put ret :again 11))
+                  :n (put ret :again (+ sides 1)))
       :number (if (< item (ret :again))
                   (do (put ret :again item)
                       (if (< item (ret :success)) (put ret :success item))))
